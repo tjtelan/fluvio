@@ -1,5 +1,5 @@
 use std::fs::File;
-use std::io::{BufReader, BufRead};
+use std::io::{BufReader, BufRead, Error as IoError, ErrorKind};
 use std::path::PathBuf;
 use structopt::StructOpt;
 
@@ -69,6 +69,15 @@ impl ProduceLogOpt {
     pub async fn process(self, fluvio: &Fluvio) -> Result<()> {
         let (cfg, file_records) = self.validate()?;
         let mut producer = fluvio.topic_producer(&cfg.topic).await?;
+
+        // Check if topic exists before reading files or stdin (#697)
+        if !&producer.topic_exists().await {
+            return Err(IoError::new(
+                ErrorKind::NotFound,
+                format!("Topic {} not found", &cfg.topic),
+            )
+            .into());
+        }
 
         if let Some(records) = file_records {
             produce_from_files(&mut producer, cfg, records).await?;
