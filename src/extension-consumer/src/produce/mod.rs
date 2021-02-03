@@ -71,7 +71,7 @@ impl ProduceLogOpt {
         let mut producer = fluvio.topic_producer(&cfg.topic).await?;
 
         // Check if topic exists before reading files or stdin (#697)
-        if !&producer.topic_exists().await {
+        if !producer.topic_exists().await {
             return Err(IoError::new(
                 ErrorKind::NotFound,
                 format!("Topic {} not found", &cfg.topic),
