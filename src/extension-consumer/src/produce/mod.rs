@@ -1,9 +1,9 @@
 use std::fs::File;
-use std::io::{BufReader, BufRead, Error as IoError, ErrorKind};
+use std::io::{BufReader, BufRead};
 use std::path::PathBuf;
 use structopt::StructOpt;
 
-use fluvio::{Fluvio, TopicProducer};
+use fluvio::{Fluvio, FluvioError, TopicProducer};
 use fluvio_types::print_cli_ok;
 use crate::common::FluvioExtensionMetadata;
 use crate::Result;
@@ -72,11 +72,7 @@ impl ProduceLogOpt {
 
         // Check if topic exists before reading files or stdin (#697)
         if !producer.topic_exists().await {
-            return Err(IoError::new(
-                ErrorKind::NotFound,
-                format!("Topic {} not found", &cfg.topic),
-            )
-            .into());
+            return Err(FluvioError::TopicNotFound(cfg.topic).into());
         }
 
         if let Some(records) = file_records {
