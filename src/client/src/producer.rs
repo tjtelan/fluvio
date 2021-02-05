@@ -56,7 +56,6 @@ impl TopicProducer {
 
         send_record_raw(spu_client, &replica, record).await
     }
-
 }
 
 /// Sends record to a target server (Kf, SPU, or SC)
