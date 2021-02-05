@@ -57,11 +57,6 @@ impl TopicProducer {
         send_record_raw(spu_client, &replica, record).await
     }
 
-    /// Returns true if a simple connection to `self.topic/0` is successful
-    pub async fn topic_exists(&self) -> bool {
-        let replica = ReplicaKey::new(&self.topic, 0);
-        self.pool.create_serial_socket(&replica).await.is_ok()
-    }
 }
 
 /// Sends record to a target server (Kf, SPU, or SC)

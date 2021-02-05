@@ -3,7 +3,7 @@ use std::io::{BufReader, BufRead};
 use std::path::PathBuf;
 use structopt::StructOpt;
 
-use fluvio::{Fluvio, FluvioError, TopicProducer};
+use fluvio::{Fluvio, TopicProducer};
 use fluvio_types::print_cli_ok;
 use crate::common::FluvioExtensionMetadata;
 use crate::Result;
@@ -69,11 +69,6 @@ impl ProduceLogOpt {
     pub async fn process(self, fluvio: &Fluvio) -> Result<()> {
         let (cfg, file_records) = self.validate()?;
         let mut producer = fluvio.topic_producer(&cfg.topic).await?;
-
-        // Check if topic exists before reading files or stdin (#697)
-        if !producer.topic_exists().await {
-            return Err(FluvioError::TopicNotFound(cfg.topic).into());
-        }
 
         if let Some(records) = file_records {
             produce_from_files(&mut producer, cfg, records).await?;

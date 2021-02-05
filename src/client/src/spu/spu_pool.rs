@@ -159,6 +159,12 @@ impl SpuPool {
         Ok(stream)
     }
 
+    /// Returns true if key `topic/0` is found
+    pub async fn topic_exists<S: Into<String>>(&self, topic: S) -> bool {
+        let replica = ReplicaKey::new(topic, 0);
+        self.metadata.partitions().lookup_by_key(&replica).await.is_ok()
+    }
+
     pub fn shutdown(&mut self) {
         self.metadata.shutdown();
     }
